@@ -1,0 +1,2 @@
+up:
+	API_PORT=9000 SYSTEM_PORT=10000 MONGO_CONNECT=root:secret@localhost:27017 MONGO_DB_NAME=core REDIS_HOST=redis REDIS_PORT=6379 go run main.go

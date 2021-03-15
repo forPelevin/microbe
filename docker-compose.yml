@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      dockerfile: ./docker/Dockerfile
+      context: api
+    restart: always
+    ports:
+      - 9000:9000
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+        interval: 3s
+        timeout: 15s
+        start_period: 5s
+    environment:
+      API_PORT: 9000
+      MONGO_CONNECT: root:secret@mongo:27017
+      MONGO_DB_NAME: core
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+  frontend:
+    build:
+        dockerfile: ./docker/Dockerfile
+        context: frontend
+        args:
+            BUILD_ENV: dev
+    restart: always
+    ports:
+      - 3000:80
+
+  mongo:
+    image: mongo:4.4-bionic
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: core
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    volumes:
+      - ./var/data:/data/db:delegated
+      - ./mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    ports:
+      - 27017:27017
+
+  redis:
+    image: redis:6.0.9-alpine
+    restart: always
+    ports:
+      - 6379:6379
